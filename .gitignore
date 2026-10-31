@@ -9,3 +9,4 @@ node_modules/
 /playwright-report/
 /qa-custom-report/
 .env
+tasktobedone.txt
