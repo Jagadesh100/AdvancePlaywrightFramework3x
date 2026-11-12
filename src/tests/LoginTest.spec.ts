@@ -8,8 +8,8 @@ const password = "tta_secret";
 test.describe(`Login Tests`, async()=>{
     test(`Login`, async({page})=>{
         const loginPage = new LoginPage(page);
-        await loginPage.gotoLoginPage(URL);
-        await loginPage.enterLoginCredentials(userName,password);
+        await loginPage.open();
+        await loginPage.loginAs(userName,password);
         await loginPage.clickOnLoginButton();
         await page.pause();
     });

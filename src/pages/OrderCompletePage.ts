@@ -1,21 +1,46 @@
-import { type Locator, type Page } from '@playwright/test';
+import { expect, Locator, Page } from '@playwright/test';
+import { BasePage } from './BasePage';
 
-export class Ordercompletepage {
-  readonly page: Page;
-  readonly completeHeader: Locator;
-  readonly title: Locator;
-  readonly linkBackHome: Locator;
-  readonly completeText: Locator;
+/**
+ * TTACart "Checkout: Complete!" page — the order confirmation screen.
+ *
+ *   const complete = new CheckoutCompletePage(page);
+ *   await complete.assertOrderComplete();
+ *   await complete.backHome();
+ */
+export class OrderCompletePage extends BasePage {
+    static readonly PATH = 'https://app.thetestingacademy.com/playwright/ttacart/checkout-complete';
 
-  constructor(page: Page) {
-    this.page = page;
-    this.completeHeader = page.getByTestId("complete-header").or(page.getByRole("heading", { name: "Thank you for your order!" })).or(page.getByText("Thank you for your order!"));
-    this.title = page.getByTestId("title").or(page.getByText("Checkout: Complete!"));
-    this.linkBackHome = page.getByRole("link", { name: "Back Home" }).or(page.getByTestId("back-to-products")).or(page.getByText("Back Home"));
-    this.completeText = page.getByTestId("complete-text");
-  }
+    private readonly title: Locator;
+    private readonly completeHeader: Locator;
+    private readonly completeText: Locator;
+    private readonly backHomeButton: Locator;
 
-  async goto() {
-    await this.page.goto("https://app.thetestingacademy.com/playwright/ttacart/");
-  }
+    constructor(page: Page) {
+        super(page, 'CheckoutCompletePage');
+        this.title = page.locator('[data-test="title"]');
+        this.completeHeader = page.locator('[data-test="complete-header"]');
+        this.completeText = page.locator('[data-test="complete-text"]');
+        this.backHomeButton = page.locator('[data-test="back-to-products"]');
+    }
+
+    async assertLoaded(): Promise<void> {
+        await expect(this.page).toHaveURL(/checkout-complete(\.html)?$/);
+        await expect(this.title).toContainText('Checkout: Complete!');
+    }
+
+    /** The order succeeded: confirmation header is shown. */
+    async assertOrderComplete(): Promise<void> {
+        await this.assertLoaded();
+        await expect(this.completeHeader).toContainText('Thank you for your order!');
+    }
+
+    async confirmationText(): Promise<string> {
+        return this.element.getText(this.completeText);
+    }
+
+    async backHome(): Promise<void> {
+        await this.element.click(this.backHomeButton);
+        await this.page.waitForLoadState('domcontentloaded');
+    }
 }

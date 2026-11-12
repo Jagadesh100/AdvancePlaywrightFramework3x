@@ -1,13 +1,18 @@
 import { Locator, Page} from "@playwright/test";
+import { BasePage } from "./BasePage";
 
-export class LoginPage {
+
+export class LoginPage extends BasePage{
     readonly page:Page;
-    readonly userNameInput : Locator;
-    readonly passwordInput : Locator;
-    readonly loginButton : Locator;
-    readonly titleofThePage : Locator;
+    private readonly userNameInput : Locator;
+    private readonly passwordInput : Locator;
+    private readonly loginButton : Locator;
+    private readonly titleofThePage : Locator;
+
+    static readonly PATH = 'https://app.thetestingacademy.com/playwright/ttacart/';
 
     constructor(page : Page){
+        super(page, 'LoginPage');
         this.page = page;
         this.userNameInput = page.locator("#user-name");
         this.passwordInput = page.locator("#password");
@@ -15,16 +20,20 @@ export class LoginPage {
         this.titleofThePage = page.locator(".tta-brand-title");
     }
 
-    async gotoLoginPage(url:string){
-        await this.page.goto(url);
+    async open(): Promise<void> {
+        this.log.info("Open login page");
+        await this.goto(LoginPage.PATH);
     }
 
-    async enterLoginCredentials(userName:string, password: string){
-        await this.userNameInput.fill(userName);
-        await this.passwordInput.fill(password);
+    async loginAs(userName:string, password: string){
+        this.log.info("Enters the UserName in UserName textbox");
+        await this.element.fill(this.userNameInput, userName)
+        this.log.info("Enters the UserName in Password textbox");
+        await this.element.fill(this.passwordInput,password);
     }
 
     async clickOnLoginButton(){
-        await this.loginButton.click();
+        this.log.info("Click on Login Button");
+        await this.element.click(this.loginButton);
     }    
 }

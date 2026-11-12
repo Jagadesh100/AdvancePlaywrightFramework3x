@@ -10,3 +10,4 @@ node_modules/
 /qa-custom-report/
 .env
 tasktobedone.txt
+logs

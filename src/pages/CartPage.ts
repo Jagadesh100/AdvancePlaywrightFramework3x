@@ -1,21 +1,60 @@
-import { type Locator, type Page } from '@playwright/test';
+import { expect, Locator, Page } from '@playwright/test';
+import { BasePage } from './BasePage';
 
-export class Cartpage {
-  readonly page: Page;
-  readonly cartList: Locator;
-  readonly inventoryItem: Locator;
-  readonly linkContinueShopping: Locator;
-  readonly linkCheckout: Locator;
+/**
+ * TTACart "Your Cart" page.
+ *
+ *   const cart = new CartPage(page);
+ *   await cart.open();
+ *   await cart.removeItem('tta-practice-backpack');
+ *   await cart.checkout();
+ */
+export class CartPage extends BasePage {
+    static readonly PATH = 'https://app.thetestingacademy.com/playwright/ttacart/cart';
 
-  constructor(page: Page) {
-    this.page = page;
-    this.cartList = page.getByTestId("cart-list");
-    this.inventoryItem = page.getByTestId("inventory-item");
-    this.linkContinueShopping = page.getByRole("link", { name: "Continue Shopping" }).or(page.getByTestId("continue-shopping")).or(page.getByText("Continue Shopping"));
-    this.linkCheckout = page.getByRole("link", { name: "Checkout" }).or(page.getByTestId("checkout")).or(page.getByText("Checkout"));
-  }
+    private readonly title: Locator;
+    private readonly itemRows: Locator;
+    private readonly itemNames: Locator;
+    private readonly continueShoppingLink: Locator;
+    private readonly checkoutButton: Locator;
 
-  async goto() {
-    await this.page.goto("https://app.thetestingacademy.com/playwright/ttacart/");
-  }
+    constructor(page: Page) {
+        super(page, 'CartPage');
+        this.title = page.locator('[data-test="title"]');
+        this.itemRows = page.locator('[data-test="inventory-item"]');
+        this.itemNames = page.locator('[data-test="inventory-item-name"]');
+        this.continueShoppingLink = page.locator('[data-test="continue-shopping"]');
+        this.checkoutButton = page.locator('[data-test="checkout"]');
+    }
+
+    async open(): Promise<void> {
+        await this.goto(CartPage.PATH);
+        await this.assertLoaded();
+    }
+
+    async assertLoaded(): Promise<void> {
+        await expect(this.title).toContainText('Your Cart');
+    }
+
+    async itemNamesList(): Promise<string[]> {
+        return this.element.getAllTexts(this.itemNames);
+    }
+
+    async rowCount(): Promise<number> {
+        return this.itemRows.count();
+    }
+
+    async remove(id: string): Promise<void> {
+        await this.element.click(this.page.locator(`[data-test="remove-${id}"]`));
+    }
+
+    async continueShopping(): Promise<void> {
+        await this.element.click(this.continueShoppingLink);
+        await this.page.waitForLoadState('domcontentloaded');
+    }
+
+    async checkout(): Promise<void> {
+        await this.element.click(this.checkoutButton);
+        await this.page.waitForLoadState('domcontentloaded');
+    }
 }

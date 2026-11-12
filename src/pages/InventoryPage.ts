@@ -1,21 +1,65 @@
-import { type Locator, type Page } from '@playwright/test';
+import { expect, Locator, Page } from '@playwright/test';
+import { BasePage } from './BasePage';
 
-export class Inventorypage {
-  readonly page: Page;
-  readonly inventoryContainer: Locator;
-  readonly addToCartTestAllthethings: Locator;
-  readonly itemTtaBikeLightTitle: Locator;
-  readonly shoppingCartLink: Locator;
+export class InventoryPage extends BasePage {
+    static readonly PATH = 'https://app.thetestingacademy.com/playwright/ttacart/inventory';
 
-  constructor(page: Page) {
-    this.page = page;
-    this.inventoryContainer = page.getByTestId("inventory-container").or(page.locator("#inventory-grid")).or(page.locator("main").locator("#inventory-grid"));
-    this.addToCartTestAllthethings = page.getByTestId("add-to-cart-test-allthethings-tshirt-red").or(page.getByRole("button", { name: "Add to cart" })).or(page.getByText("Add to cart"));
-    this.itemTtaBikeLightTitle = page.getByTestId("item-tta-bike-light-title-link").or(page.getByRole("link", { name: "TTA Bike Light" })).or(page.getByText("TTA Bike Light"));
-    this.shoppingCartLink = page.getByTestId("shopping-cart-link").or(page.getByRole("link", { name: "Shopping cart" })).or(page.locator("#shopping_cart_container"));
-  }
+    private readonly title: Locator;
+    private readonly sortDropdown: Locator;
+    private readonly items: Locator;
+    private readonly itemNames: Locator;
+    private readonly itemPrices: Locator;
+    private readonly cartLink: Locator;
+    private readonly cartBadge: Locator;
 
-  async goto() {
-    await this.page.goto("https://app.thetestingacademy.com/playwright/ttacart/");
-  }
+    constructor(page: Page) {
+        super(page, 'InventoryPage');
+        this.title = page.locator('[data-test="title"]');
+        this.sortDropdown = page.locator('[data-test="product-sort-container"]');
+        this.items = page.locator('[data-test="inventory-item"]');
+        this.itemNames = page.locator('[data-test="inventory-item-name"]');
+        this.itemPrices = page.locator('[data-test="inventory-item-price"]');
+        this.cartLink = page.locator('[data-test="shopping-cart-link"]');
+        this.cartBadge = page.locator('[data-test="shopping-cart-badge"]');
+    }
+
+    async open(): Promise<void> {
+        await this.goto(InventoryPage.PATH);
+        await this.assertLoaded();
+    }
+
+    async assertLoaded(): Promise<void> {
+        await expect(this.title).toHaveText('Products');
+        await expect.poll(async () => this.items.count()).toBeGreaterThan(3);
+    }
+
+    async productNames(): Promise<string[]> {
+        return this.element.getAllTexts(this.itemNames);
+    }
+
+
+    private addBtn(id: string): Locator {
+        return this.page.locator(`[data-test="add-to-cart-${id}"]`);
+    }
+    private removeBtn(id: string): Locator {
+        return this.page.locator(`[data-test="remove-${id}"]`);
+    }
+
+    async addToCart(id: string): Promise<void> {
+        await this.element.click(this.addBtn(id));
+    }
+
+    async removeFromCart(id: string): Promise<void> {
+        await this.element.click(this.removeBtn(id));
+    }
+
+    async openCart(): Promise<void> {
+        await this.element.click(this.cartLink);
+        await this.page.waitForLoadState('domcontentloaded');
+    }
+
+    async openItem(id: string): Promise<void> {
+        await this.element.click(this.page.locator(`[data-test="item-${id}-title-link"]`));
+        await this.page.waitForLoadState('domcontentloaded');
+    }
 }
