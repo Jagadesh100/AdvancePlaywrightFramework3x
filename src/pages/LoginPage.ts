@@ -9,7 +9,7 @@ export class LoginPage extends BasePage{
     private readonly loginButton : Locator;
     private readonly titleofThePage : Locator;
 
-    static readonly PATH = 'https://app.thetestingacademy.com/playwright/ttacart/';
+    static readonly PATH = '/playwright/ttacart/index.html';
 
     constructor(page : Page){
         super(page, 'LoginPage');

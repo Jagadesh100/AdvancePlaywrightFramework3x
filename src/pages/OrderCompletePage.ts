@@ -9,7 +9,7 @@ import { BasePage } from './BasePage';
  *   await complete.backHome();
  */
 export class OrderCompletePage extends BasePage {
-    static readonly PATH = 'https://app.thetestingacademy.com/playwright/ttacart/checkout-complete';
+     static readonly PATH = '/playwright/ttacart/checkout-complete.html';
 
     private readonly title: Locator;
     private readonly completeHeader: Locator;

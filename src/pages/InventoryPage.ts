@@ -2,7 +2,7 @@ import { expect, Locator, Page } from '@playwright/test';
 import { BasePage } from './BasePage';
 
 export class InventoryPage extends BasePage {
-    static readonly PATH = 'https://app.thetestingacademy.com/playwright/ttacart/inventory';
+    static readonly PATH = '/playwright/ttacart/inventory.html';
 
     private readonly title: Locator;
     private readonly sortDropdown: Locator;

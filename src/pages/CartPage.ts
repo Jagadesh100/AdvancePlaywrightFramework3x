@@ -10,7 +10,7 @@ import { BasePage } from './BasePage';
  *   await cart.checkout();
  */
 export class CartPage extends BasePage {
-    static readonly PATH = 'https://app.thetestingacademy.com/playwright/ttacart/cart';
+    static readonly PATH = '/playwright/ttacart/cart.html';
 
     private readonly title: Locator;
     private readonly itemRows: Locator;
